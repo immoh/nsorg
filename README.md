@@ -16,7 +16,7 @@ Also available as Leiningen plugin: [lein-nsorg](https://github.com/immoh/lein-n
 Dependency information:
 
 ```clj
-[nsorg "0.1.0-SNAPSHOT"]
+[nsorg "0.1.0"]
 ```
 
 ## Usage

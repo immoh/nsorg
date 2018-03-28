@@ -1,4 +1,4 @@
-(defproject nsorg "0.1.0-SNAPSHOT"
+(defproject nsorg "0.1.0"
   :description "Clojure library for organizing ns form"
   :url "https://github.com/immoh/nsorg"
   :license {:name "Eclipse Public License"
