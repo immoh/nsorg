@@ -1,6 +1,6 @@
 (defproject nsorg "0.1.0-SNAPSHOT"
   :description "Clojure library for organizing ns form"
-  :url "https://github.com/immoh/nsorg/"
+  :url "https://github.com/immoh/nsorg"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[rewrite-clj "0.6.0"]]
