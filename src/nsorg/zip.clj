@@ -1,12 +1,14 @@
 (ns nsorg.zip
   "Functions for working with zippers."
-  (:require [rewrite-clj.zip :as zip]))
+  (:require [clojure.string]
+            [rewrite-clj.zip :as zip]))
 
 (defn ^:no-doc zloc->sort-key [zloc]
-  (let [sexpr (zip/sexpr zloc)]
-    (if (sequential? sexpr)
-      (first sexpr)
-      sexpr)))
+  (-> (if (sequential? (zip/sexpr zloc))
+        (zip/down zloc)
+        zloc)
+      (zip/string)
+      (clojure.string/lower-case)))
 
 (defn right-nodes
   "Return seq of zipper nodes that are right siblings of the given zipper node.

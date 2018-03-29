@@ -101,6 +101,12 @@
   (nsorg/rewrite-ns-form "(ns foo (:use-macros [a.c :only [x]] a.b [a.a]))")
   => "(ns foo (:use-macros [a.a] a.b [a.c :only [x]]))")
 
+
+(fact
+  "Sorting is case-insensitive"
+  (nsorg/rewrite-ns-form "(ns foo (:require [compojure.core :refer [GET defroutes]]))")
+  => "(ns foo (:require [compojure.core :refer [defroutes GET]]))")
+
 (fact
   "Preserves formatting"
   (nsorg/rewrite-ns-form "
