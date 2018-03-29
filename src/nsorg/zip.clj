@@ -2,6 +2,12 @@
   "Functions for working with zippers."
   (:require [rewrite-clj.zip :as zip]))
 
+(defn ^:no-doc zloc->sort-key [zloc]
+  (let [sexpr (zip/sexpr zloc)]
+    (if (sequential? sexpr)
+      (first sexpr)
+      sexpr)))
+
 (defn right-nodes
   "Return seq of zipper nodes that are right siblings of the given zipper node.
 
@@ -19,12 +25,7 @@
   Parameters:
   zlocs - zipper nodes to sort"
   [zlocs]
-  (sort-by (fn [zloc]
-             (let [sexpr (zip/sexpr zloc)]
-               (if (sequential? sexpr)
-                 (first sexpr)
-                 sexpr)))
-           zlocs))
+  (sort-by zloc->sort-key zlocs))
 
 (defn order-node-pairs
   "Order given zipper node pairs alphabetically by sexpr value of left element of the pair. If sexpr is sequential,
@@ -33,12 +34,7 @@
   Parameters:
   zlocs - zipper node pairs to sort"
   [zlocs]
-  (sort-by (fn [[zloc _]]
-             (let [sexpr (zip/sexpr zloc)]
-               (if (sequential? sexpr)
-                 (first sexpr)
-                 sexpr)))
-           zlocs))
+  (sort-by (comp zloc->sort-key first) zlocs))
 
 (defn order-sexpr
   "Order child zipper nodes of given collection zipper node.
