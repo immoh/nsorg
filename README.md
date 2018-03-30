@@ -1,4 +1,4 @@
-# nsorg
+# nsorg [![Build Status](https://travis-ci.org/immoh/nsorg.svg?branch=master)](https://travis-ci.org/immoh/nsorg)
 
 Clojure library for organizing `ns` form in a way that whitespace and comments are preserved.
 
