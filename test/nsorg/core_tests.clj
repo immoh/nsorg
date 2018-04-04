@@ -141,3 +141,7 @@
           [a.b]
           [a.c :only [y z x]]
     ))")
+
+(fact
+  "Does not modify input if ns form is not found"
+  (nsorg/rewrite-ns-form "") => "")

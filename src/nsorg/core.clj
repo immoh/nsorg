@@ -81,8 +81,6 @@
   ([s]
     (rewrite-ns-form s {:rules default-rules}))
   ([s opts]
-   (-> s
-       (zip/of-string)
-       (nzip/find-ns-form)
-       (nzip/organize-ns-form (:rules opts))
-       (zip/root-string))))
+   (if-let [zloc (nzip/find-ns-form (zip/of-string s))]
+     (zip/root-string (nzip/organize-ns-form zloc (:rules opts)))
+     s)))

@@ -72,11 +72,12 @@
     ns-zloc - zipper node of ns form
     rules   - collection of rules to apply "
   [ns-zloc rules]
-  (reduce
-    (fn [zloc {:keys [predicate transform]}]
-      (zip/postwalk zloc predicate transform))
-    ns-zloc
-    rules))
+  (when ns-zloc
+    (reduce
+      (fn [zloc {:keys [predicate transform]}]
+        (zip/postwalk zloc predicate transform))
+      ns-zloc
+      rules)))
 
 (defn find-ns-form
   "Finds ns form in the subtree of given zipper node.
