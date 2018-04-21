@@ -12,11 +12,9 @@
     (zip/sexpr zloc)))
 
 (defn ^:no-doc zloc->sort-key [zloc]
-  (-> (if (sequential? (sexpr zloc))
-        (zip/down zloc)
-        zloc)
-      (zip/string)
-      (clojure.string/lower-case)))
+  (if (sequential? (sexpr zloc))
+    (recur (zip/down zloc))
+    (clojure.string/lower-case (zip/string zloc))))
 
 (defn right-nodes
   "Return seq of zipper nodes that are right siblings of the given zipper node.
