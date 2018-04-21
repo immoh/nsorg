@@ -149,4 +149,4 @@
 (fact
   "Handles #_ reader macro"
   (nsorg/rewrite-ns-form "(ns foo (:require #_[a.c :refer [z y x]] [a.b] [a.a]))")
-  => anything)
+  => "(ns foo (:require #_[a.c :refer [z y x]] [a.a] [a.b]))")

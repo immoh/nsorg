@@ -28,6 +28,16 @@
        (iterate zip/right)
        (take-while identity)))
 
+(defn ancestors
+  "Return seq of zipper nodes that are ancestors of the given zipper node.
+
+  Parameters:
+    zloc - zipper node"
+  [zloc]
+  (->> zloc
+       (iterate zip/up)
+       (take-while identity)))
+
 (defn order-nodes
   "Order given zipper nodes alphabetically by their sexpr value. If sexpr is sequential, use the sexpr value of the
   first item for sorting.
@@ -70,6 +80,9 @@
              (mapcat identity (order-node-pairs (partition-all 2 zlocs)))
              (order-nodes zlocs))))))))
 
+(defn ^:no-doc has-uneval-ancestor? [zloc]
+  (some #(= :uneval (node/tag (zip/node %))) (ancestors zloc)))
+
 (defn organize-ns-form
   "Organize ns form by applying given rules. A single rule a map with two keys:
 
@@ -83,7 +96,12 @@
   (when ns-zloc
     (reduce
       (fn [zloc {:keys [predicate transform]}]
-        (zip/postwalk zloc predicate transform))
+        (zip/postwalk zloc
+                      (fn [zloc]
+                        (and
+                          (not (has-uneval-ancestor? zloc))
+                          (predicate zloc)))
+                      transform))
       ns-zloc
       rules)))
 
