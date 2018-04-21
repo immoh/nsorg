@@ -12,7 +12,8 @@
     (zip/sexpr zloc)))
 
 (defn ^:no-doc zloc->sort-key [zloc]
-  (if (sequential? (sexpr zloc))
+  (if (or (node/printable-only? (zip/node zloc))
+          (sequential? (sexpr zloc)))
     (recur (zip/down zloc))
     (clojure.string/lower-case (zip/string zloc))))
 
