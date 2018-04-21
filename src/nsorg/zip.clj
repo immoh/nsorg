@@ -1,10 +1,18 @@
 (ns nsorg.zip
   "Functions for working with zippers."
   (:require [clojure.string]
+            [rewrite-clj.node :as node]
             [rewrite-clj.zip :as zip]))
 
+(defn sexpr
+  "Like `rewrite.clj.zip/sexpr but returns nil for nodes that are printable-only."
+  [zloc]
+  (when (and zloc
+             (not (node/printable-only? (zip/node zloc))))
+    (zip/sexpr zloc)))
+
 (defn ^:no-doc zloc->sort-key [zloc]
-  (-> (if (sequential? (zip/sexpr zloc))
+  (-> (if (sequential? (sexpr zloc))
         (zip/down zloc)
         zloc)
       (zip/string)

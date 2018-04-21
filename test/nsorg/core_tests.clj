@@ -145,3 +145,8 @@
 (fact
   "Does not modify input if ns form is not found"
   (nsorg/rewrite-ns-form "") => "")
+
+(fact
+  "Handles #_ reader macro"
+  (nsorg/rewrite-ns-form "(ns foo (:require #_[a.c :refer [z y x]] [a.b] [a.a]))")
+  => anything)

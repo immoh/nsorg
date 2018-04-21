@@ -9,8 +9,8 @@
     kw - option keyword"
   [kw]
   {:predicate (fn [zloc]
-                (and (map? (zip/sexpr zloc))
-                     (= kw (zip/sexpr (zip/left zloc)))))
+                (and (map? (nzip/sexpr zloc))
+                     (= kw (nzip/sexpr (zip/left zloc)))))
    :transform (fn [zloc]
                 (nzip/order-sexpr zloc {:map? true}))})
 
@@ -21,8 +21,8 @@
     kw - option keyword"
   [kw]
   {:predicate (fn [zloc]
-                (and (vector? (zip/sexpr zloc))
-                     (= kw (zip/sexpr (zip/left zloc)))))
+                (and (vector? (nzip/sexpr zloc))
+                     (= kw (nzip/sexpr (zip/left zloc)))))
    :transform nzip/order-sexpr})
 
 (defn sort-prefix-libspec
@@ -32,8 +32,8 @@
     kw - ns clause type"
   [kw]
   {:predicate (fn [zloc]
-                (let [sexpr (zip/sexpr zloc)
-                      parent-sexpr (zip/sexpr (zip/up zloc))]
+                (let [sexpr (nzip/sexpr zloc)
+                      parent-sexpr (nzip/sexpr (zip/up zloc))]
                   (and (sequential? sexpr)
                        (or (symbol? (second sexpr))
                            (vector? (second sexpr)))
@@ -49,8 +49,8 @@
     kw - ns clause type"
   [kw]
   {:predicate (fn [zloc]
-                (and (sequential? (zip/sexpr zloc))
-                     (= kw (first (zip/sexpr zloc)))))
+                (and (sequential? (nzip/sexpr zloc))
+                     (= kw (first (nzip/sexpr zloc)))))
    :transform (fn [zloc]
                 (nzip/order-sexpr zloc {:exclude-first? true}))})
 
