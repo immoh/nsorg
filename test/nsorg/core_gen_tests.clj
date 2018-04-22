@@ -1,7 +1,7 @@
 (ns nsorg.core-gen-tests
   (:require [clojure.core.specs.alpha :as core-specs]
-            [clojure.test.check.generators :as gen]
             [clojure.spec.alpha :as s]
+            [clojure.test.check.generators :as gen]
             [midje.experimental :refer [for-all]]
             [midje.sweet :refer :all]
             [nsorg.core :as nsorg]))
