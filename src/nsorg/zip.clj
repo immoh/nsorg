@@ -1,5 +1,6 @@
 (ns nsorg.zip
   "Functions for working with zippers."
+  (:refer-clojure :exclude [ancestors])
   (:require [clojure.string]
             [rewrite-clj.node :as node]
             [rewrite-clj.zip :as zip]))
