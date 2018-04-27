@@ -1,6 +1,9 @@
 (ns nsorg.core-tests
   (:require [midje.sweet :refer :all]
             [nsorg.core :as nsorg]))
+
+;; Default sorting rules
+
 (fact
   "Sorts :refer-clojure :exclude option list"
   (nsorg/rewrite-ns-form "(ns foo (:refer-clojure :exclude [map remove filter]))")
@@ -106,22 +109,7 @@
   (nsorg/rewrite-ns-form "(ns foo (:require [compojure.core :refer [GET defroutes]]))")
   => "(ns foo (:require [compojure.core :refer [defroutes GET]]))")
 
-(fact
-  "Preserves formatting"
-  (nsorg/rewrite-ns-form "
-  (ns foo
-    ;; use
-    (:use [a.c :only [y z x]]
-          a
-          [a.b]
-    ))")
-  => "
-  (ns foo
-    ;; use
-    (:use a
-          [a.b]
-          [a.c :only [x y z]]
-    ))")
+;; Custom rules
 
 (fact
   "Rewrites ns form using given rules"
@@ -140,6 +128,25 @@
     (:use a
           [a.b]
           [a.c :only [y z x]]
+    ))")
+
+;; Other
+
+(fact
+  "Preserves formatting"
+  (nsorg/rewrite-ns-form "
+  (ns foo
+    ;; use
+    (:use [a.c :only [y z x]]
+          a
+          [a.b]
+    ))")
+  => "
+  (ns foo
+    ;; use
+    (:use a
+          [a.b]
+          [a.c :only [x y z]]
     ))")
 
 (fact
