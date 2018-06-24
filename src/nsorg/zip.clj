@@ -56,6 +56,40 @@
   [zlocs]
   (sort-by (comp zloc->sort-key first) zlocs))
 
+(defn remove-duplicates-from-sexpr
+  "Remove duplicates from child zipper nodes of given collection zipper node.
+  Map entries are considered duplicates if they they have the same value (not key).
+
+  Parameters:
+    zloc           - collection zipper node
+    exclude-first? - exclude first element of collection from duplicate removal (default: false)
+    map?           - collection is map and nodes should be treated as pairs (default: false)"
+  ([zloc]
+    (remove-duplicates-from-sexpr zloc nil))
+  ([zloc {:keys [exclude-first? map?]}]
+   (let [leftmost? (if map? (comp zip/leftmost? zip/left) zip/leftmost?)
+         left (if map? (comp zip/left zip/left) zip/left)
+         remove (if map? (comp zip/remove zip/remove) zip/remove)]
+     (loop [seen #{} zloc (zip/rightmost (zip/down zloc))]
+       (let [current-sexpr (sexpr zloc)]
+         (cond
+           (leftmost? zloc)
+           (if (seen current-sexpr)
+             ;; moves up after removing leftmost node
+             (remove zloc)
+             (zip/up zloc))
+
+           (and exclude-first? (leftmost? (left zloc)))
+           (zip/up (if (seen current-sexpr)
+                     (remove zloc)
+                     zloc))
+
+           :else
+           (recur (conj seen current-sexpr)
+                  (if (seen current-sexpr)
+                    (remove zloc)
+                    (left zloc)))))))))
+
 (defn order-sexpr
   "Order child zipper nodes of given collection zipper node.
 

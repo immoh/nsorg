@@ -15,9 +15,12 @@
                                                                     :param-types ::core-specs/signature
                                                                     :return-type simple-symbol?)))))
 
-(defn has-same-length-as [expected]
+(defn is-rewrite-of [original]
   (fn [actual]
-    (= (count actual) (count expected))))
+    (let [original-freqs (frequencies original)]
+      (every? (fn [[char count]]
+                (<= count (get original-freqs char 0)))
+              (frequencies actual)))))
 
 (for-all
   [ns-form (gen/fmap
@@ -26,4 +29,4 @@
              (s/gen ::core-specs/ns-form))]
   (fact
     "Rewrite function is able to handle arbitary ns forms"
-    (nsorg/rewrite-ns-form ns-form) => (has-same-length-as ns-form)))
+    (nsorg/rewrite-ns-form ns-form) => (is-rewrite-of ns-form)))

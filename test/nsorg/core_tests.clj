@@ -109,6 +109,108 @@
   (nsorg/rewrite-ns-form "(ns foo (:require [compojure.core :refer [GET defroutes]]))")
   => "(ns foo (:require [compojure.core :refer [defroutes GET]]))")
 
+;; Duplicate removal rules
+
+(fact
+  "Removes duplicates from  :refer-clojure :exclude option list"
+  (nsorg/rewrite-ns-form "(ns foo (:refer-clojure :exclude [map remove map]))")
+  => "(ns foo (:refer-clojure :exclude [map remove]))")
+
+(fact
+  "Removes duplicates from :refer-clojure :only option list"
+  (nsorg/rewrite-ns-form "(ns foo (:refer-clojure :only [map remove map]))")
+  => "(ns foo (:refer-clojure :only [map remove]))")
+
+(fact
+  "Removes duplicates from :refer-clojure :rename option map"
+  (nsorg/rewrite-ns-form "(ns foo (:refer-clojure :rename {map foo filter foo}))")
+  => "(ns foo (:refer-clojure :rename {filter foo}))")
+
+(fact
+  "Removes exact duplicates from :require libspecs"
+  (nsorg/rewrite-ns-form "(ns foo (:require [a.c :as c] a.b [a.a] a.b))")
+  => "(ns foo (:require [a.a] a.b [a.c :as c]))")
+
+(fact
+  "Removes exact duplicates from :require prefix libspecs"
+  (nsorg/rewrite-ns-form "(ns foo (:require [x b [c :as c] a b]))")
+  => "(ns foo (:require [x a b [c :as c]]))")
+
+(fact
+  "Removes duplicates from :require libspec :refer option list"
+  (nsorg/rewrite-ns-form "(ns foo (:require [a.a :refer [b c b]]))")
+  => "(ns foo (:require [a.a :refer [b c]]))")
+
+(fact
+  "Removes duplicates from :require prefix libspec :refer option list"
+  (nsorg/rewrite-ns-form "(ns foo (:require [x [y :refer [c a c]]]))")
+  => "(ns foo (:require [x [y :refer [a c]]]))")
+
+(fact
+  "Removes exact duplicates from :use libspecs"
+  (nsorg/rewrite-ns-form "(ns foo (:use a.b [a.c :exclude [d]] [a.a] a.b))")
+  => "(ns foo (:use [a.a] a.b [a.c :exclude [d]]))")
+
+(fact
+  "Removes exact duplicates from :use prefix libspecs"
+  (nsorg/rewrite-ns-form "(ns foo (:use [x b [c :as c] a b]))")
+  => "(ns foo (:use [x a b [c :as c]]))")
+
+(fact
+  "Removes duplicates from :use libspec :exclude option list"
+  (nsorg/rewrite-ns-form "(ns foo (:use [a.a :exclude [c b c]]))")
+  => "(ns foo (:use [a.a :exclude [b c]]))")
+
+(fact
+  "Removes dulicates from :use libspec :only option list"
+  (nsorg/rewrite-ns-form "(ns foo (:use [a.a :only [c b c]]))")
+  => "(ns foo (:use [a.a :only [b c]]))")
+
+(fact
+  "Removes duplicates from :use libspec :rename option map"
+  (nsorg/rewrite-ns-form "(ns foo (:use [a.a :rename {b foo c baz a foo}]))")
+  => "(ns foo (:use [a.a :rename {a foo c baz}]))")
+
+(fact
+  "Removes duplicates from :use prefix libspec :exclude option list"
+  (nsorg/rewrite-ns-form "(ns foo (:use [a [a :exclude [c b c]]]))")
+  => "(ns foo (:use [a [a :exclude [b c]]]))")
+
+(fact
+  "Removes duplicates from :use prefix libspec :only option list"
+  (nsorg/rewrite-ns-form "(ns foo (:use [a [a :only [c b c]]]))")
+  => "(ns foo (:use [a [a :only [b c]]]))")
+
+(fact
+  "Removes duplicates from :use prefix libspec :rename option map"
+  (nsorg/rewrite-ns-form "(ns foo (:use [a [a :rename {b foo c baz a foo}]]))")
+  => "(ns foo (:use [a [a :rename {a foo c baz}]]))")
+
+(fact
+  "Removes duplicates from :import class names"
+  (nsorg/rewrite-ns-form "(ns foo (:import java.util.Date java.util.List java.util.Date))")
+  => "(ns foo (:import java.util.Date java.util.List))")
+
+(fact
+  "Removes duplicates from :import package prefix class names"
+  (nsorg/rewrite-ns-form "(ns foo (:import (java.util Date List Date)))")
+  => "(ns foo (:import (java.util Date List)))")
+
+(fact
+  "Removes duplicates from :require libspec :refer-macros option list (CLJS)"
+  (nsorg/rewrite-ns-form "(ns foo (:require [a.a :refer-macros [c b c]]))")
+  => "(ns foo (:require [a.a :refer-macros [b c]]))")
+
+(fact
+  "Removes exact duplicates from :require-macros libspecs (CLJS)"
+  (nsorg/rewrite-ns-form "(ns foo (:require-macros [a.c :as c] a.b [a.a] a.b))")
+  => "(ns foo (:require-macros [a.a] a.b [a.c :as c]))")
+
+(fact
+  "Removes exact duplicates from :use-macros libspecs (CLJS)"
+  (nsorg/rewrite-ns-form "(ns foo (:use-macros [a.c :only [x]] a.b [a.a] [a.a]))")
+  => "(ns foo (:use-macros [a.a] a.b [a.c :only [x]]))")
+
 ;; Custom rules
 
 (fact

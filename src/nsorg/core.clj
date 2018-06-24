@@ -47,6 +47,45 @@
          (list? parent-sexpr)
          (= kw (first parent-sexpr)))))
 
+(defn remove-duplicates-from-map-option
+  "Create rule for removing duplicates map option values.
+
+  Parameters:
+    kw - option keyword"
+  [kw]
+  {:predicate (partial map-option? kw)
+   :transform (fn [zloc]
+                (nzip/remove-duplicates-from-sexpr zloc {:map? true}))})
+
+(defn remove-duplicates-from-seq-option
+  "Create rule for removing duplicates seq option values.
+
+  Parameters:
+    kw - option keyword"
+  [kw]
+  {:predicate (partial seq-option? kw)
+   :transform nzip/remove-duplicates-from-sexpr})
+
+(defn remove-duplicates-from-ns-clause
+  "Create rule for removing duplicates from ns clause.
+
+  Parameters:
+    kw - ns clause type"
+  [kw]
+  {:predicate (partial ns-clause? kw)
+   :transform (fn [zloc]
+                (nzip/remove-duplicates-from-sexpr zloc {:exclude-first? true}))})
+
+(defn remove-duplicates-from-prefix-libspec
+  "Create rule for removing duplicates from prefix libspec.
+
+  Parameters:
+    kw - ns clause type"
+  [kw]
+  {:predicate (partial prefix-libspex? kw)
+   :transform (fn [zloc]
+                (nzip/remove-duplicates-from-sexpr zloc {:exclude-first? true}))})
+
 (defn sort-map-option
   "Create rule for sorting map option values.
 
@@ -88,7 +127,21 @@
 
 (def default-rules
   "Default rule set."
-  [(sort-map-option :rename)
+  [(remove-duplicates-from-map-option :rename)
+   (remove-duplicates-from-seq-option :exclude)
+   (remove-duplicates-from-seq-option :only)
+   (remove-duplicates-from-seq-option :refer)
+   (remove-duplicates-from-seq-option :refer-macros)
+   (remove-duplicates-from-prefix-libspec :import)
+   (remove-duplicates-from-prefix-libspec :require)
+   (remove-duplicates-from-prefix-libspec :use)
+   (remove-duplicates-from-ns-clause :import)
+   (remove-duplicates-from-ns-clause :require)
+   (remove-duplicates-from-ns-clause :require-macros)
+   (remove-duplicates-from-ns-clause :use)
+   (remove-duplicates-from-ns-clause :use-macros)
+
+   (sort-map-option :rename)
    (sort-seq-option :exclude)
    (sort-seq-option :only)
    (sort-seq-option :refer)
