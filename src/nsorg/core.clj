@@ -2,15 +2,97 @@
   (:require [nsorg.zip :as nzip]
             [rewrite-clj.zip :as zip]))
 
+(defn map-option?
+  "Returns true if given zipper node is a map value of given keyword option.
+
+  Parameters:
+    kw   - option keyword
+    zloc - zipper node"
+  [kw zloc]
+  (and (map? (nzip/sexpr zloc))
+       (= kw (nzip/sexpr (zip/left zloc)))))
+
+(defn seq-option?
+  "Returns true if given zipper node is a seq value of given keyword option.
+
+  Parameters:
+    kw   - option keyword
+    zloc - zipper node"
+  [kw zloc]
+  (and (vector? (nzip/sexpr zloc))
+       (= kw (nzip/sexpr (zip/left zloc)))))
+
+(defn ns-clause?
+  "Returns true if given zipper node is a ns clause.
+
+  Parameters:
+    kw   - option keyword
+    zloc - zipper node"
+  [kw zloc]
+  (and (sequential? (nzip/sexpr zloc))
+       (= kw (first (nzip/sexpr zloc)))))
+
+(defn prefix-libspex?
+  "Returns true if given zipper node is a prefix libspec.
+
+  Parameters:
+    kw   - option keyword
+    zloc - zipper node"
+  [kw zloc]
+  (let [sexpr (nzip/sexpr zloc)
+        parent-sexpr (nzip/sexpr (zip/up zloc))]
+    (and (sequential? sexpr)
+         (or (symbol? (second sexpr))
+             (vector? (second sexpr)))
+         (list? parent-sexpr)
+         (= kw (first parent-sexpr)))))
+
+(defn remove-duplicates-from-map-option
+  "Create rule for removing duplicates map option values.
+
+  Parameters:
+    kw - option keyword"
+  [kw]
+  {:predicate (partial map-option? kw)
+   :transform (fn [zloc]
+                (nzip/remove-duplicates-from-sexpr zloc {:map? true}))})
+
+(defn remove-duplicates-from-seq-option
+  "Create rule for removing duplicates seq option values.
+
+  Parameters:
+    kw - option keyword"
+  [kw]
+  {:predicate (partial seq-option? kw)
+   :transform nzip/remove-duplicates-from-sexpr})
+
+(defn remove-duplicates-from-ns-clause
+  "Create rule for removing duplicates from ns clause.
+
+  Parameters:
+    kw - ns clause type"
+  [kw]
+  {:predicate (partial ns-clause? kw)
+   :transform (fn [zloc]
+                (nzip/remove-duplicates-from-sexpr zloc {:exclude-first? true}))})
+
+(defn remove-duplicates-from-prefix-libspec
+  "Create rule for removing duplicates from prefix libspec.
+
+  Parameters:
+    kw - ns clause type"
+  [kw]
+  {:predicate (partial prefix-libspex? kw)
+   :transform (fn [zloc]
+                (nzip/remove-duplicates-from-sexpr zloc {:exclude-first? true}))})
+
 (defn sort-map-option
   "Create rule for sorting map option values.
 
   Parameters:
     kw - option keyword"
   [kw]
-  {:predicate (fn [zloc]
-                (and (map? (nzip/sexpr zloc))
-                     (= kw (nzip/sexpr (zip/left zloc)))))
+  {:predicate (partial map-option? kw)
    :transform (fn [zloc]
                 (nzip/order-sexpr zloc {:map? true}))})
 
@@ -20,9 +102,7 @@
   Parameters:
     kw - option keyword"
   [kw]
-  {:predicate (fn [zloc]
-                (and (vector? (nzip/sexpr zloc))
-                     (= kw (nzip/sexpr (zip/left zloc)))))
+  {:predicate (partial seq-option? kw)
    :transform nzip/order-sexpr})
 
 (defn sort-prefix-libspec
@@ -31,16 +111,9 @@
   Parameters:
     kw - ns clause type"
   [kw]
-  {:predicate (fn [zloc]
-                (let [sexpr (nzip/sexpr zloc)
-                      parent-sexpr (nzip/sexpr (zip/up zloc))]
-                  (and (sequential? sexpr)
-                       (or (symbol? (second sexpr))
-                           (vector? (second sexpr)))
-                       (list? parent-sexpr)
-                       (= kw (first parent-sexpr)))))
-   :transform  (fn [zloc]
-                 (nzip/order-sexpr zloc {:exclude-first? true}))})
+  {:predicate (partial prefix-libspex? kw)
+   :transform (fn [zloc]
+                (nzip/order-sexpr zloc {:exclude-first? true}))})
 
 (defn sort-ns-clause
   "Create rule for sorting ns clause.
@@ -48,15 +121,27 @@
   Parameters:
     kw - ns clause type"
   [kw]
-  {:predicate (fn [zloc]
-                (and (sequential? (nzip/sexpr zloc))
-                     (= kw (first (nzip/sexpr zloc)))))
+  {:predicate (partial ns-clause? kw)
    :transform (fn [zloc]
                 (nzip/order-sexpr zloc {:exclude-first? true}))})
 
 (def default-rules
   "Default rule set."
-  [(sort-map-option :rename)
+  [(remove-duplicates-from-map-option :rename)
+   (remove-duplicates-from-seq-option :exclude)
+   (remove-duplicates-from-seq-option :only)
+   (remove-duplicates-from-seq-option :refer)
+   (remove-duplicates-from-seq-option :refer-macros)
+   (remove-duplicates-from-prefix-libspec :import)
+   (remove-duplicates-from-prefix-libspec :require)
+   (remove-duplicates-from-prefix-libspec :use)
+   (remove-duplicates-from-ns-clause :import)
+   (remove-duplicates-from-ns-clause :require)
+   (remove-duplicates-from-ns-clause :require-macros)
+   (remove-duplicates-from-ns-clause :use)
+   (remove-duplicates-from-ns-clause :use-macros)
+
+   (sort-map-option :rename)
    (sort-seq-option :exclude)
    (sort-seq-option :only)
    (sort-seq-option :refer)
