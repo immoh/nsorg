@@ -158,7 +158,7 @@
 (defn rewrite-ns-form
   "Rewrites ns form in the Clojure code given as a string using the given set of rules.
    By default applies rules that sort ns clauses, prefix libspecs and option values alphabetically.
-   Preserve original whitespace and comments.
+   Preserves original whitespace and comments.
 
   Parameters:
     s     - string containing Clojure code
