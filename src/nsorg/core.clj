@@ -54,7 +54,7 @@
     kw - option keyword"
   [kw]
   {:predicate (partial map-option? kw)
-   :transform (fn [zloc]
+   :transform (fn [_ zloc]
                 (nzip/remove-duplicates-from-sexpr zloc {:map? true}))})
 
 (defn remove-duplicates-from-seq-option
@@ -64,7 +64,8 @@
     kw - option keyword"
   [kw]
   {:predicate (partial seq-option? kw)
-   :transform nzip/remove-duplicates-from-sexpr})
+   :transform (fn [_ zloc]
+                (nzip/remove-duplicates-from-sexpr zloc))})
 
 (defn remove-duplicates-from-ns-clause
   "Create rule for removing duplicates from ns clause.
@@ -73,7 +74,7 @@
     kw - ns clause type"
   [kw]
   {:predicate (partial ns-clause? kw)
-   :transform (fn [zloc]
+   :transform (fn [_ zloc]
                 (nzip/remove-duplicates-from-sexpr zloc {:exclude-first? true}))})
 
 (defn remove-duplicates-from-prefix-libspec
@@ -83,7 +84,7 @@
     kw - ns clause type"
   [kw]
   {:predicate (partial prefix-libspex? kw)
-   :transform (fn [zloc]
+   :transform (fn [_ zloc]
                 (nzip/remove-duplicates-from-sexpr zloc {:exclude-first? true}))})
 
 (defn sort-map-option
@@ -93,7 +94,7 @@
     kw - option keyword"
   [kw]
   {:predicate (partial map-option? kw)
-   :transform (fn [zloc]
+   :transform (fn [_ zloc]
                 (nzip/order-sexpr zloc {:map? true}))})
 
 (defn sort-seq-option
@@ -103,7 +104,8 @@
     kw - option keyword"
   [kw]
   {:predicate (partial seq-option? kw)
-   :transform nzip/order-sexpr})
+   :transform (fn [_ zloc]
+                (nzip/order-sexpr zloc))})
 
 (defn sort-prefix-libspec
   "Create rule for sorting prefix libspec.
@@ -112,7 +114,7 @@
     kw - ns clause type"
   [kw]
   {:predicate (partial prefix-libspex? kw)
-   :transform (fn [zloc]
+   :transform (fn [_ zloc]
                 (nzip/order-sexpr zloc {:exclude-first? true}))})
 
 (defn sort-ns-clause
@@ -122,7 +124,7 @@
     kw - ns clause type"
   [kw]
   {:predicate (partial ns-clause? kw)
-   :transform (fn [zloc]
+   :transform (fn [_ zloc]
                 (nzip/order-sexpr zloc {:exclude-first? true}))})
 
 (def default-rules
@@ -167,5 +169,5 @@
     (rewrite-ns-form s {:rules default-rules}))
   ([s opts]
    (if-let [zloc (nzip/find-ns-form (zip/of-string s))]
-     (zip/root-string (nzip/organize-ns-form zloc (:rules opts)))
+     (zip/root-string (nzip/organize-ns-form zloc nil (:rules opts)))
      s)))

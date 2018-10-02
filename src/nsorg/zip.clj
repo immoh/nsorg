@@ -124,9 +124,10 @@
     :transform - modifies given zipper node
 
   Parameters:
-    ns-zloc - zipper node of ns form
-    rules   - collection of rules to apply "
-  [ns-zloc rules]
+    ns-zloc     - zipper node of ns form
+    ns-analysis - TODO
+    rules       - collection of rules to apply "
+  [ns-zloc ns-analysis rules]
   (when ns-zloc
     (reduce
       (fn [zloc {:keys [predicate transform]}]
@@ -135,7 +136,7 @@
                         (and
                           (not (has-uneval-ancestor? zloc))
                           (predicate zloc)))
-                      transform))
+                      (partial transform ns-analysis)))
       ns-zloc
       rules)))
 
