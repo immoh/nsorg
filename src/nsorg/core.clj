@@ -1,5 +1,6 @@
 (ns nsorg.core
-  (:require [nsorg.zip :as nzip]
+  (:require [nsorg.ns-analyzer :as ns-analyzer]
+            [nsorg.zip :as nzip]
             [rewrite-clj.zip :as zip]))
 
 (defn map-option?
@@ -46,6 +47,33 @@
              (vector? (second sexpr)))
          (list? parent-sexpr)
          (= kw (first parent-sexpr)))))
+
+;; TODO
+(defn- var->ns-name [v]
+  (some-> v .-ns ns-name))
+
+(defn remove-unused-from-require-refer
+  "TODO"
+  []
+  ;; TODO is :refer only applicable to :require?
+  {:predicate (fn [zloc]
+                (and (symbol? (nzip/sexpr zloc))
+                     (seq-option? :refer (zip/up zloc))
+                     #_(libspec? (-> zloc zip/up zip/up))
+                     ;; TODO doesn't handle prefix libspecs
+                     (ns-clause? :require (-> zloc zip/up zip/up zip/up))))
+   :transform (fn [ns-analysis zloc]
+                (prn ns-analysis)
+                (let [symbol (nzip/sexpr zloc)]
+                  (prn :symbol symbol)
+                  (prn := (var->ns-name (get-in ns-analysis [:symbols symbol]))
+                       (-> zloc zip/up zip/up nzip/sexpr first) :=> (= (var->ns-name (get-in ns-analysis [:symbols symbol]))
+                                                                       (-> zloc zip/up zip/up nzip/sexpr first)))
+                  (if (= (var->ns-name (get-in ns-analysis [:symbols symbol]))
+                         (-> zloc zip/up zip/up nzip/sexpr first))
+                    zloc
+                    (zip/remove zloc)))
+                zloc)})
 
 (defn remove-duplicates-from-map-option
   "Create rule for removing duplicates map option values.
@@ -129,7 +157,9 @@
 
 (def default-rules
   "Default rule set."
-  [(remove-duplicates-from-map-option :rename)
+  [(remove-unused-from-require-refer)
+
+   (remove-duplicates-from-map-option :rename)
    (remove-duplicates-from-seq-option :exclude)
    (remove-duplicates-from-seq-option :only)
    (remove-duplicates-from-seq-option :refer)
@@ -169,5 +199,5 @@
     (rewrite-ns-form s {:rules default-rules}))
   ([s opts]
    (if-let [zloc (nzip/find-ns-form (zip/of-string s))]
-     (zip/root-string (nzip/organize-ns-form zloc nil (:rules opts)))
+     (zip/root-string (nzip/organize-ns-form zloc (ns-analyzer/analyze s) (:rules opts)))
      s)))

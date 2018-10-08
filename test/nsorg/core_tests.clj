@@ -211,6 +211,24 @@
   (nsorg/rewrite-ns-form "(ns dedupe-use-macros (:use-macros [kissa.c :only [x]] kissa.b [kissa.a] [kissa.a]))")
   => "(ns dedupe-use-macros (:use-macros [kissa.a] kissa.b [kissa.c :only [x]]))")
 
+;; Unused removal rules
+
+(fact
+  "unused require :refer"
+  (nsorg/rewrite-ns-form
+    "
+  (ns foo
+    (:require [clojure.string :refer [blank? starts-with?]]))
+
+  (defn not-blank? [s]
+    (not (blank? s)))")
+  => "
+  (ns foo
+    (:require [clojure.string :refer [blank?]]))
+
+  (defn not-blank? [s]
+    (not (blank? s)))")
+
 ;; Custom rules
 
 (fact
