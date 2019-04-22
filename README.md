@@ -8,8 +8,8 @@ Rules to apply are fully customizable; the default implementation
 * sorts `:import` class names alphabetically and removes duplicates
 * sorts `:exclude`, `:only`, `:refer`, `:refer-macros` and `:rename` options alphabetically and removes duplicates
 
-Also available as Leiningen plugin: [lein-nsorg](https://github.com/immoh/lein-nsorg/)
-
+Also available as Leiningen plugin [lein-nsorg](https://github.com/immoh/lein-nsorg)
+and command line tool [nsorg-cli](https://github.com/immoh/nsorg-cli).
 
 ## Installation
 
